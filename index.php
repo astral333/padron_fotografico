@@ -19,7 +19,7 @@ $ix_nom     = array_search("NOMBRE", $header);
 $ix_aula    = array_search("AULA", $header);
 
 // Filtrar por Aula 1
-$data_aula1 = array_filter($data, fn($row) => trim($row[$ix_aula]) == '1');
+$data_aula1 = array_filter($data, fn($row) => trim($row[$ix_aula]) == '8');
 
 // Ordenar alfabéticamente por apellidos + nombres
 usort($data_aula1, function($a, $b) use ($ix_ap1, $ix_ap2, $ix_nom) {
@@ -51,30 +51,46 @@ body { font-family: sans-serif; font-size: 11px; }
 }
 table { width: 100%; border-collapse: collapse; }
 td {
-    width: 25%; height: 250px; border: 1px solid #000;
+    width: 25%; height: 90px; border: 1px solid #000;
     text-align: center; vertical-align: top; padding: 5px;
 }
 img.foto {
     width: 90px; height: 110px; object-fit: cover; margin: 6px 0;
 }
 .nombre { font-weight: bold; }
-.firma { font-weight: bold; margin-top: 10px; }
+.firma { font-weight: bold; margin-top: 10px;  height: 60px;}
 </style>';
 
+
+$contador = 1;
+$columna = 0;
 // Encabezado
-$html .= '<div class="header">
-    <img src="data:image/png;base64,' . $logoBase64 . '"><br>
-    <div class="titulo">UNIVERSIDAD NACIONAL AUTÓNOMA DE CHOTA</div>
-    <div class="subtitulo">SEGUNDO EXAMEN CEPRE 2025 - 1</div>
-    <div class="titulo">LISTADO ALFABÉTICO POR AULA</div>
-    <div class="subtitulo" style="text-align:right; margin-top:-40px;">Aula<br><span style="font-size:18px;">1</span></div>
-</div>';
+$html .= '
+<table style="width:100%; height:140px; margin-bottom:10px; border:1px solid transparent;">
+    <tr>
+        <td style="width:120px; text-align:left; vertical-align:middle; border:1px solid transparent;">
+            <img src="data:image/png;base64,' . $logoBase64 . '" style="height:140px; width:140px; object-fit:cover;">
+        </td>
+        <td style=" vertical-align:middle; border:1px solid transparent;">
+            <div style="font-size:28px; font-weight:bold; line-height:1.1; margin-bottom:8px;">
+                UNIVERSIDAD NACIONAL<br>AUTONOMA DE CHOTA
+            </div>
+            <div style="font-size:18px; font-weight:bold; margin-bottom:8px;">
+                PRIMER EXAMEN CEPRE 2025 - II
+            </div>
+            <div style="font-size:22px; font-weight:bold; margin-top:8px;">
+                LISTADO ALFABÉTICO POR AULA
+            </div>
+        </td>
+        <td style="width:30px; text-align:right; vertical-align:middle; border:1px solid transparent;">
+            <div style="font-size:14px; margin-bottom:4px;">Aula</div>
+            <div style="font-size:36px; font-weight:bold;">8</div>
+        </td>
+    </tr>
+</table>';
 
 // Fichas
 $html .= '<table><tr>';
-$contador = 1;
-$columna = 0;
-
 foreach ($data_aula1 as $row) {
     $dni     = $row[$ix_dni];
     $codigo  = $row[$ix_codigo];
@@ -89,6 +105,7 @@ foreach ($data_aula1 as $row) {
         ? "<img class='foto' src='data:image/jpeg;base64,$fotoBase64'>"
         : "<div style='width:90px;height:110px;border:1px solid #ccc;margin:6px auto;'></div>";
     $html .= "<div class='nombre'>$apellidoNombre</div>";
+    $html .= "<div class='nombre'>DNI:$dni</div>";
     $html .= "<div class='firma'>Firma</div>";
     $html .= '</td>';
 
