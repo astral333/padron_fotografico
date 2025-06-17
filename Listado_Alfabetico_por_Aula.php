@@ -17,9 +17,9 @@ $ix_ap1     = array_search("AP. PATERNO", $header);
 $ix_ap2     = array_search("AP. MATERNO", $header);
 $ix_nom     = array_search("NOMBRE", $header);
 $ix_aula    = array_search("AULA", $header);
-
+$numerodeAula= isset($_GET['aula']) ? $_GET['aula'] : 1;
 // Filtrar por Aula 1
-$data_aula1 = array_filter($data, fn($row) => trim($row[$ix_aula]) == '8');
+$data_aula1 = array_filter($data, fn($row) => trim($row[$ix_aula]) == $numerodeAula);
 
 // Ordenar alfabéticamente por apellidos + nombres
 usort($data_aula1, function($a, $b) use ($ix_ap1, $ix_ap2, $ix_nom) {
@@ -84,7 +84,7 @@ $html .= '
         </td>
         <td style="width:30px; text-align:right; vertical-align:middle; border:1px solid transparent;">
             <div style="font-size:14px; margin-bottom:4px;">Aula</div>
-            <div style="font-size:36px; font-weight:bold;">8</div>
+            <div style="font-size:36px; font-weight:bold;">'.$numerodeAula.'</div>
         </td>
     </tr>
 </table>';
@@ -106,7 +106,6 @@ foreach ($data_aula1 as $row) {
         : "<div style='width:90px;height:110px;border:1px solid #ccc;margin:6px auto;'></div>";
     $html .= "<div class='nombre'>$apellidoNombre</div>";
     $html .= "<div class='nombre'>DNI:$dni</div>";
-    $html .= "<div class='firma'>Firma</div>";
     $html .= '</td>';
 
     $columna++;
@@ -114,7 +113,7 @@ foreach ($data_aula1 as $row) {
 
     if ($columna == 4) {
         $html .= '</tr>';
-        if (($contador - 1) % 12 == 0) {
+        if (($contador - 1) % 16 == 0) {
             $html .= '</table><div style="page-break-after:always;"></div><table><tr>';
         } else {
             $html .= '<tr>';

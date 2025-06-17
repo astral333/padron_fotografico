@@ -17,8 +17,9 @@ $ix_ap1     = array_search("AP. PATERNO", $header);
 $ix_ap2     = array_search("AP. MATERNO", $header);
 $ix_nom     = array_search("NOMBRE", $header);
 $ix_aula    = array_search("AULA", $header);
-$numerodeAula= 1;
+
 // Filtrar por Aula 1
+$numerodeAula = isset($_GET['aula']) ? $_GET['aula'] : 1;
 $data_aula1 = array_filter($data, fn($row) => trim($row[$ix_aula]) == $numerodeAula);
 
 // Ordenar alfabéticamente por apellidos + nombres
@@ -50,6 +51,21 @@ body { font-family: sans-serif; font-size: 11px; }
     font-size: 12px;
 }
 table { width: 100%; border-collapse: collapse; }
+tr.cabecera {
+    height: 12px;
+    background:rgb(182, 19, 19);
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid #000;
+    page-break-inside: avoid;
+}
+    td.td_head {
+    height: 12px;
+    background:rgb(99, 233, 137);
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid #000;
+}
 td {
     width: 25%; height: 90px; border: 1px solid #000;
     text-align: center; vertical-align: top; padding: 5px;
@@ -79,7 +95,7 @@ $html .= '
                 PRIMER EXAMEN CEPRE 2025 - II
             </div>
             <div style="font-size:22px; font-weight:bold; margin-top:8px;">
-                LISTADO ALFABÉTICO POR AULA
+                LISTADO DE HUELLAS POR AULA
             </div>
         </td>
         <td style="width:30px; text-align:right; vertical-align:middle; border:1px solid transparent;">
@@ -89,45 +105,53 @@ $html .= '
     </tr>
 </table>';
 
-// Fichas
-$html .= '<table><tr>';
+// Tabla de registros
+$html .= '
+<table style="width:100%; border-collapse:collapse; font-size:11px; margin-bottom:20px;">';
+
 foreach ($data_aula1 as $row) {
     $dni     = $row[$ix_dni];
     $codigo  = $row[$ix_codigo];
-    $apellidoNombre = strtoupper("{$row[$ix_ap1]} {$row[$ix_ap2]}<br>{$row[$ix_nom]}");
+    $apellidosNombres = strtoupper($row[$ix_ap1] . ' ' . $row[$ix_ap2] . ' ' . $row[$ix_nom]);
+    $ix_carrera = array_search("CARRERA", $header);
+    $carrera = $ix_carrera !== false ? strtoupper($row[$ix_carrera]) : '';
 
     $fotoPath = "fotos/$dni.jpg";
     $fotoBase64 = file_exists($fotoPath) ? base64_encode(file_get_contents($fotoPath)) : '';
 
-    $html .= '<td>';
-    $html .= "<div><strong>$contador</strong><br>$codigo</div>";
+    $html .= '  <tr class="cabecera">
+    <td class="td_head" style="width:60px; font-weight:bold; text-align:center; border:1px solid #000;"><strong></strong></td>
+    <td class="td_head" style="width:90px; font-weight:bold; text-align:center; border:1px solid #000;">Foto digital</td>
+    <td class="td_head" style="width:90px; font-weight:bold; text-align:center; border:1px solid #000;">Huella digital</td>
+    <td class="td_head" style="width:90px; font-weight:bold; text-align:center; border:1px solid #000;">Huella digital</td>
+  </tr>';
+    $html .= '<tr style="page-break-inside: avoid;">';
+    // Columna 1: Datos
+    $html .= '
+    <td style="border:1px solid #000; text-align:left; vertical-align:middle; font-size:11px; font-weight:bold; padding:4px;">
+    N° <span> - ' . $contador . '</span><br>
+        CÓDIGO<br>
+        <span style="font-weight:normal;">' . $codigo . '</span><br>
+        DNI:<br>
+        <span style="font-weight:normal;">' . $dni . '</span><br>
+        APELLIDOS Y NOMBRES:<br>
+        <span style="font-weight:normal;">' . $apellidosNombres . '</span><br>
+        CARRERA:<br>
+        <span style="font-weight:normal;">' . $carrera . '</span>
+    </td>';
+    // Columna 2: Foto
+    $html .= '<td style="border:1px solid #000; text-align:center; vertical-align:middle;">';
     $html .= $fotoBase64
-        ? "<img class='foto' src='data:image/jpeg;base64,$fotoBase64'>"
-        : "<div style='width:90px;height:110px;border:1px solid #ccc;margin:6px auto;'></div>";
-    $html .= "<div class='nombre'>$apellidoNombre</div>";
-    $html .= "<div class='nombre'>DNI:$dni</div>";
+        ? "<img class='foto' src='data:image/jpeg;base64,$fotoBase64' style='width:90px; height:110px; object-fit:cover;'>"
+        : "<div style='width:90px;height:110px;border:1px solid #ccc;margin:auto;'></div>";
     $html .= '</td>';
-
-    $columna++;
-    $contador++;
-
-    if ($columna == 4) {
-        $html .= '</tr>';
-        if (($contador - 1) % 16 == 0) {
-            $html .= '</table><div style="page-break-after:always;"></div><table><tr>';
-        } else {
-            $html .= '<tr>';
-        }
-        $columna = 0;
-    }
-}
-
-if ($columna > 0 && $columna < 4) {
-    for ($i = $columna; $i < 4; $i++) {
-        $html .= '<td></td>';
-    }
+    // Columna 3 y 4: Huellas
+    $html .= '<td style="border:1px solid #000;"></td>';
+    $html .= '<td style="border:1px solid #000;"></td>';
     $html .= '</tr>';
+    $contador++;
 }
+
 $html .= '</table>';
 
 // PDF
